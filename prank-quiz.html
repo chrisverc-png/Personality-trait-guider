@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Personality Snapshot</title>
+<style>
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial, sans-serif;display:flex;min-height:100vh;
+    align-items:center;justify-content:center;background:#f5f6fb;margin:0;padding:20px}
+  .card{width:100%;max-width:680px;background:#fff;padding:26px;border-radius:12px;box-shadow:0 6px 24px rgba(20,25,40,0.08)}
+  h1{margin:0 0 6px;font-size:20px}
+  p.small{margin:0 0 18px;color:#6b7280}
+  .q{margin-bottom:12px}
+  label{display:block;margin-bottom:6px;font-weight:600}
+  .options button{display:inline-block;margin:6px 8px 6px 0;padding:8px 12px;border-radius:8px;border:1px solid #e6e9ef;background:#fff;cursor:pointer}
+  .options button.selected{border-color:#0b63e4;background:rgba(11,99,228,0.06)}
+  .submit{display:block;margin-top:18px;padding:10px 14px;border-radius:8px;border:0;background:#111;color:white;font-weight:700;cursor:pointer}
+  .result{display:none;text-align:center;padding:36px}
+  .result h2{color:#0b63e4;margin:0 0 8px}
+  .progress{height:8px;background:#eef2ff;border-radius:999px;overflow:hidden;margin-bottom:14px}
+  .progress > i{display:block;height:100%;width:0%;background:#dbeafe}
+</style>
+</head>
+<body>
+  <div class="card" id="quiz">
+    <h1>Quick Personality Snapshot</h1>
+    <p class="small">Answer honestly — this takes 2 minutes.</p>
+    <div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+    <div id="questions">
+      <div class="q">
+        <label>1) On a weekend, you most enjoy:</label>
+        <div class="options">
+          <button>Hanging out with friends</button>
+          <button>Trying a new cafe</button>
+          <button>Reading at home</button>
+          <button>Outdoor sports</button>
+        </div>
+      </div>
+      <div class="q">
+        <label>2) Favourite evening vibe?</label>
+        <div class="options">
+          <button>Chill & cosy</button>
+          <button>Party & loud</button>
+          <button>Creative night in</button>
+          <button>Out on the town</button>
+        </div>
+      </div>
+      <div class="q">
+        <label>3) Pick a hobby:</label>
+        <div class="options">
+          <button>Fashion / styling</button>
+          <button>Cooking</button>
+          <button>Fitness</button>
+          <button>Collecting things</button>
+        </div>
+      </div>
+      <div class="q">
+        <label>4) How do friends describe you?</label>
+        <div class="options">
+          <button>Considerate</button>
+          <button>Funny</button>
+          <button>Confident</button>
+          <button>Stylish</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="submit" id="submitBtn">See results</button>
+  </div>
+
+  <div class="card result" id="resultCard" role="status" aria-live="polite">
+    <h2>Here’s your results</h2>
+    <p id="finalText" style="font-weight:800;font-size:20px;margin:8px 0 0"></p>
+    <p class="small" style="margin-top:14px">Thanks for taking the quiz — share with a friend if you want to compare results!</p>
+  </div>
+
+<script>
+  // === EASY CONFIG ===
+  // Change this to whatever final message you want
+  const RESULT_TEXT = "You are 100% gay";
+  // Delay (ms) used to simulate "calculating" — increase for realism
+  const CALC_DELAY_MS = 900;
+  // ===================
+
+  // Make options clickable and update a fake progress bar
+  const optionButtons = document.querySelectorAll('.options button');
+  optionButtons.forEach(b => {
+    b.addEventListener('click', () => {
+      // toggle selection class for visual feedback
+      const siblings = b.parentElement.querySelectorAll('button');
+      siblings.forEach(s => s.classList.remove('selected'));
+      b.classList.add('selected');
+      updateProgress();
+    });
+  });
+
+  function updateProgress(){
+    const totalQuestions = document.querySelectorAll('.q').length;
+    let answered = 0;
+    document.querySelectorAll('.q').forEach(q => {
+      if (q.querySelector('.options button.selected')) answered++;
+    });
+    const pct = Math.round((answered/totalQuestions) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+  }
+
+  document.getElementById('submitBtn').addEventListener('click', ()=>{
+    // If you want, require at least one answer before submitting; currently we'll allow submission
+    const quiz = document.getElementById('quiz');
+    quiz.innerHTML = '<p style="font-weight:700;margin:0 0 12px">Calculating your results…</p>';
+    // small fake animation dots
+    const dots = document.createElement('span');
+    dots.textContent = ' . . .';
+    quiz.appendChild(dots);
+
+    setTimeout(()=>{
+      document.getElementById('finalText').textContent = RESULT_TEXT;
+      document.getElementById('resultCard').style.display = 'block';
+      quiz.style.display = 'none';
+    }, CALC_DELAY_MS);
+  });
+</script>
+</body>
+</html>
