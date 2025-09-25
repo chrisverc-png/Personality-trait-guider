@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Relationship Personality Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f0f2f5;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+    h1, h2 { margin: 0 0 20px 0; text-align: center; }
+    .landing-page {
+      max-width: 600px;
+      width: 90%;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .info-box {
+      background: #f7f7f7;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 10px;
+      text-align: left;
+      line-height: 1.5em;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .start-btn {
+      padding: 15px 30px;
+      font-size: 1.3em;
+      cursor: pointer;
+      border-radius: 10px;
+      border: none;
+      background: #4CAF50;
+      color: white;
+      transition: background 0.3s;
+      margin-top: 20px;
+    }
+    .start-btn:hover { background: #45a049; }
+
+    .quiz-container {
+      background: white;
+      width: 90%; max-width: 500px;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      margin-top: 30px;
+    }
+    .progress {
+      width: 100%; height: 10px;
+      background: #eee; border-radius: 5px;
+      margin-bottom: 20px; overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%; width: 0;
+      background: linear-gradient(90deg, #ff0080, #ff8c00, #40e0d0);
+      transition: width 0.3s ease;
+    }
+    .question { font-size: 1.2em; margin-bottom: 20px; }
+    .options button {
+      display: block; width: 100%;
+      padding: 12px; margin: 8px 0;
+      border: none; border-radius: 8px;
+      background: #f0f0f0; font-size: 1em;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .options button:hover { background: #ddd; }
+    .hidden { display: none; }
+
+    .calculating, .result {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex; justify-content: center; align-items: center;
+      z-index: 100;
+      color: white; text-align: center;
+    }
+    .calculating { background: #333; font-size: 2em; }
+    .result {
+      background: linear-gradient(270deg,
+        red, orange, yellow, green, blue, indigo, violet);
+      background-size: 1400% 1400%;
+      animation: rainbow 20s ease infinite;
+      flex-direction: column;
+    }
+    .result h1 {
+      font-size: 3em;
+      background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: glow 2s infinite alternate;
+    }
+    @keyframes rainbow {
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
+    @keyframes glow {
+      from { text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+      to   { text-shadow: 0 0 20px rgba(255,255,255,1); }
+    }
+
+    .confetti {
+      position: absolute; width: 10px; height: 10px;
+      background-color: red; top: -10px;
+      animation: fall linear forwards;
+    }
+    @keyframes fall { to { transform: translateY(100vh) rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <!-- Landing Page -->
+  <div class="landing-page" id="landing">
+    <h1>Discover Your Relationship Personality</h1>
+    <div class="info-box">
+      This quiz explores your behavior and preferences in relationships. Answer honestly for the most insightful results!
+    </div>
+    <div class="info-box">
+      You'll be asked situational questions about communication, affection, and social interactions.
+    </div>
+    <div class="info-box">
+      Take your time and enjoy the process. The results are for fun and reflection.
+    </div>
+    <button class="start-btn" id="startBtn">Start Quiz</button>
+  </div>
+
+  <!-- Quiz Container -->
+  <div class="quiz-container hidden" id="quiz">
+    <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+    <div id="question-container">
+      <div class="question" id="question"></div>
+      <div class="options" id="options"></div>
+    </div>
+  </div>
+
+  <div class="calculating hidden" id="calculating">Calculating results...</div>
+  <div class="result hidden" id="result"><h1>YOU ARE 100% GAY 🌈</h1></div>
+
+  <script>
+    const quizQuestions = [
+      {
+        q: "Your partner suggests a spontaneous weekend trip. How do you react?",
+        options: ["Excited and ready!", "Curious but cautious", "Prefer planning first", "I don’t like spontaneous trips"]
+      },
+      {
+        q: "When you argue with someone you care about, how do you usually handle it?",
+        options: ["Listen and compromise", "Talk but stay firm", "Avoid confrontation", "Get upset quickly"]
+      },
+      {
+        q: "At a party, do you spend more time with your date or mingling with others?",
+        options: ["Stick with partner", "Mostly with partner", "Split time equally", "Mostly mingling"]
+      },
+      {
+        q: "How do you show affection most often?",
+        options: ["Verbal compliments", "Physical touch", "Small gestures/gifts", "I struggle to show affection"]
+      },
+      {
+        q: "Your friend cancels plans last minute. What’s your reaction?",
+        options: ["Understand and reschedule", "Slightly annoyed", "Frustrated", "Very upset"]
+      }
+      // Add more questions here following the same structure
+    ];
+
+    let currentQuestion = 0;
+
+    const landing = document.getElementById("landing");
+    const startBtn = document.getElementById("startBtn");
+    const quizEl = document.getElementById("quiz");
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const progressBar = document.getElementById("progress-bar");
+    const calculatingEl = document.getElementById("calculating");
+    const resultEl = document.getElementById("result");
+
+    startBtn.onclick = () => {
+      landing.classList.add("hidden");
+      quizEl.classList.remove("hidden");
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const current = quizQuestions[currentQuestion];
+      questionEl.textContent = current.q;
+      optionsEl.innerHTML = "";
+      current.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.onclick = nextQuestion;
+        optionsEl.appendChild(btn);
+      });
+      progressBar.style.width = `${((currentQuestion+1)/quizQuestions.length)*100}%`;
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if(currentQuestion < quizQuestions.length){
+        showQuestion();
+      } else {
+        showCalculating();
+      }
+    }
+
+    function showCalculating() {
+      quizEl.classList.add("hidden");
+      calculatingEl.classList.remove("hidden");
+      setTimeout(showResult, 2000);
+    }
+
+    function showResult() {
+      calculatingEl.classList.add("hidden");
+      resultEl.classList.remove("hidden");
+      launchConfetti();
+    }
+
+    function launchConfetti() {
+      for(let i=0; i<100; i++){
+        const confetti = document.createElement("div");
+        confetti.classList.add("confetti");
+        confetti.style.left = Math.random()*100 + "vw";
+        confetti.style.backgroundColor = ["red","orange","yellow","green","blue","indigo","violet"][Math.floor(Math.random()*7)];
+        confetti.style.animationDuration = (Math.random()*3+2) + "s";
+        document.body.appendChild(confetti);
+        setTimeout(()=>confetti.remove(),5000);
+      }
+    }
+  </script>
+</body>
+</html>
